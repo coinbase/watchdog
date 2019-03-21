@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  tests:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - run: make test
+
+  salus:
+    machine: true
+    steps:
+      - checkout # fetch source code
+      - run: eval $SALUS_COMMAND # run all the Salus things
+  gosec:
+    docker:
+      - image: circleci/golang:1.12
+    working_directory: /go/src/github.com/coinbase/watchdog
+    steps:
+      - checkout
+      - run: go get && make gosec
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - tests
+      - gosec
+      - salus
