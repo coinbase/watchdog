@@ -1,0 +1,14 @@
+meta:
+    team: foo/bar
+
+dashboards:
+    - 1
+    - 2
+
+monitors:
+    - 3
+    - 4
+
+screenboards:
+    - 42
+    - 43

@@ -1,0 +1,14 @@
+meta:
+    team: infra/infra
+
+dashboards:
+    - 955878
+    - 917832
+
+monitors:
+    - 6065878
+    - 4891392
+
+downtimes:
+    - 55
+    - 66
