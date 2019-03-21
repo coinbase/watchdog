@@ -1,0 +1,10 @@
+meta:
+    team: test/test
+
+dashboards:
+    - 10
+    - 20
+
+monitors:
+    - 30
+    - 40
