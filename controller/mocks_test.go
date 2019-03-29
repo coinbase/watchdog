@@ -227,3 +227,7 @@ func (f fakeSystemsConfig) GitEmail() string {
 func (f fakeSystemsConfig) GetSlackToken() string {
 	return ""
 }
+
+func (f fakeSystemsConfig) PullRequestBodyExtra() string {
+	return ""
+}
