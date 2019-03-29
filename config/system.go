@@ -65,6 +65,9 @@ type SystemConfig interface {
 	GitEmail() string
 
 	GetSlackToken() string
+
+	// PullRequestBodyExtra returns a string to append to an automatically created pull request.
+	PullRequestBodyExtra() string
 }
 
 // NewSystemConfig creates a new instance of system config.
@@ -146,6 +149,8 @@ type envVarSysConfig struct {
 
 	// SlackToken is a slack API token
 	SlackToken string `env:"SLACK_TOKEN"`
+
+	PRBodyExtra string `env:"PR_BODY_TEMPLATE"`
 }
 
 func (e envVarSysConfig) GetSlackToken() string {
@@ -271,4 +276,9 @@ func (e envVarSysConfig) GitUser() string {
 // GitEmail returns a git email.
 func (e envVarSysConfig) GitEmail() string {
 	return "watchdog[bot]@users.noreply." + e.GithubBaseURL
+}
+
+// PullRequestBodyExtra returns an extra string to append to automated PRs.
+func (e envVarSysConfig) PullRequestBodyExtra() string {
+	return e.PRBodyExtra
 }
