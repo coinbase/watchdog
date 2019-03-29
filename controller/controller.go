@@ -134,7 +134,7 @@ func (c *Controller) CreatePullRequest(team, project, configFile string, compone
 		return nil
 	}
 
-	pullRequestTitle, pullRequestBody := c.preparePullRequestDescription(team, patch, configFile, componentsMap)
+	pullRequestTitle, pullRequestBody := c.preparePullRequestDescription(team, patch, configFile, c.cfg.PullRequestBodyExtra(), componentsMap)
 
 	logrus.Infof("A change has been detected. Patch:\n%s", patch)
 
@@ -223,7 +223,7 @@ func (c *Controller) tryCloseOutdatedPRs(newPRNumber int, prs []*github.PullRequ
 	}
 }
 
-func (c *Controller) preparePullRequestDescription(team, patch, configFile string, componentsMap map[types.Component][]int) (title, body string) {
+func (c *Controller) preparePullRequestDescription(team, patch, configFile, bodyExtra string, componentsMap map[types.Component][]int) (title, body string) {
 	title = fmt.Sprintf("[Automated PR] Update datadog component files owned by [%s] - %s", team, configFile)
 
 	body = "Modified component files have been detected and a new PR has been created\n\n"
@@ -239,6 +239,11 @@ func (c *Controller) preparePullRequestDescription(team, patch, configFile strin
 				body += ":warning: **Closing this PR will revert all changes made in datadog!!!**"
 			}
 		}
+	}
+
+	if bodyExtra != "" {
+		body += "\n\n"
+		body += bodyExtra
 	}
 
 	return
