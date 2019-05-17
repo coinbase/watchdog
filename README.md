@@ -1,13 +1,13 @@
-Watchdog
+Coinbase Watchdog
 ========
 
 A Datadog codification framework.
 
-The goal of watchdog is to make users lives easier by monitoring Datadog components and ensuring their consistency with data stored in git repository.
+The goal of Coinbase Watchdog is to make users lives easier by monitoring Datadog components and ensuring their consistency with data stored in git repository.
 
-Watchdog operates in two different ways:
-  - Code driven: Users can make a change to component configuration and submit a pull request. Once merged, watchdog will automatically call the Datadog API to update with latest change.
-  - UI driven: Watchdog will monitor Datadog components for changes. If a change is detected (between actual component and data stored in git) a new pull request will be created. If the pull request was closed, Watchdog will restore the component from git, discarding the change.
+Coinbase Watchdog operates in two different ways:
+  - Code driven: Users can make a change to component configuration and submit a pull request. Once merged, Coinbase Watchdog will automatically call the Datadog API to update with latest change.
+  - UI driven: Coinbase Watchdog will monitor Datadog components for changes. If a change is detected (between actual component and data stored in git) a new pull request will be created. If the pull request was closed, Coinbase Watchdog will restore the component from git, discarding the change.
 
 
 Quick guide
@@ -31,7 +31,7 @@ monitors:
 
 ```
 
-How to setup Watchdog from scratch
+How to setup Coinbase Watchdog from scratch
 ==================================
 
 - Create a github app, follow the [guide](https://developer.github.com/apps/building-your-first-github-app/) on github.com
@@ -39,10 +39,10 @@ How to setup Watchdog from scratch
   - Generate a new RSA private key in github UI.
 - Generate an rsa-ssh key from github app private RSA key: `ssh-keygen -y -f <private.key>`
   - Add the generated public rsa-ssh key to github repo, where config and data will be stored
-    under `Settings -> Deploy Keys`. Make sure to check `Allow write access`. This will grant Watchdog
+    under `Settings -> Deploy Keys`. Make sure to check `Allow write access`. This will grant Coinbase Watchdog
     permissions to push changes to remote branch and open PRs.
     
-Watchdog parameters
+Coinbase Watchdog parameters
 ===================
 
 All parameters must be set via environment variables.
@@ -71,5 +71,5 @@ System parameters:
 User parameters:
   - `USER_CONFIG_PATH`, `optional`, default set to `"/config"` - Prefix to base path with user configs.
   - `USER_CONFIG_GIT_URL`, `required` - URL to github repo with user configs.
-  - `USER_CONFIG_UPDATE_INTERVAL`, `optional`, default set to `"10m"` - Watchdog will automatically reload user configs every 10 minutes.
+  - `USER_CONFIG_UPDATE_INTERVAL`, `optional`, default set to `"10m"` - Coinbase Watchdog will automatically reload user configs every 10 minutes.
   - `USER_CONFIG_GIT_PRIVATE_KEY`, `required` - Private key to clone the repo (the public key must be in `Deploy keys`).
