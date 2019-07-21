@@ -262,7 +262,7 @@ func (e envVarSysConfig) GithubAppPrivateKeyBytes() []byte {
 // GithubAPIURL return a URL to github API.
 func (e envVarSysConfig) GithubAPIURL() string {
 	if e.GithubBaseURL == defaultGithubBaseURL {
-		return defaultGithubAPIBaseURL
+		return fmt.Sprintf("https://%s", e.GithubBaseURL)
 	}
 
 	return fmt.Sprintf("https://%s/api/v3", e.GithubBaseURL)
