@@ -1,3 +1,7 @@
+---
 secure:
   required_reviews: 1
   upstream_repository: coinbase/watchdog
+operate:
+  slack_channels:
+  - "#infra-deploys"
