@@ -30,13 +30,11 @@ func New(apiKey, appKey string, c *client.Client, opts ...Option) (*Datadog, err
 
 		getDashboardFn:   c.GetDashboard,
 		getMonitorFullFn: c.GetMonitorWithDependencies,
-		getAlertFn:       c.GetAlert,
 		getDowntimeFn:    c.GetDowntime,
 		getScreenBoardFn: c.GetScreenboard,
 
 		updateDashboardFn:   c.UpdateDashboard,
 		updateMonitorFn:     c.UpdateMonitorWithDependencies,
-		updateAlertFn:       c.UpdateAlert,
 		updateDowntimeFn:    c.UpdateDowntime,
 		updateScreenBoardFn: c.UpdateScreenboard,
 	}
@@ -58,22 +56,20 @@ func New(apiKey, appKey string, c *client.Client, opts ...Option) (*Datadog, err
 type Datadog struct {
 	Client *client.Client
 
-	getDashboardFn   func(int) (json.RawMessage, error)
-	getMonitorFullFn func(int, bool) (*client.MonitorWithDependencies, error)
-	getAlertFn       func(int) (json.RawMessage, error)
-	getDowntimeFn    func(int) (json.RawMessage, error)
-	getScreenBoardFn func(int) (json.RawMessage, error)
+	getDashboardFn   func(string) (json.RawMessage, error)
+	getMonitorFullFn func(string, bool) (*client.MonitorWithDependencies, error)
+	getDowntimeFn    func(string) (json.RawMessage, error)
+	getScreenBoardFn func(string) (json.RawMessage, error)
 
 	updateDashboardFn   func(json.RawMessage) error
 	updateMonitorFn     func(*client.MonitorWithDependencies) error
-	updateAlertFn       func(json.RawMessage) error
 	updateDowntimeFn    func(json.RawMessage) error
 	updateScreenBoardFn func(json.RawMessage) error
 }
 
 // Write takes a datadog component type ID (dashboard, monitor etc.), id from a datadog and queries the
 // corresponding datadog API. The the JSON response will be written to io.Writer.
-func (dd *Datadog) Write(component types.Component, id int, to io.Writer) error {
+func (dd *Datadog) Write(component types.Component, id string, to io.Writer) error {
 	switch component {
 	case types.ComponentDashboard:
 		return dd.writeDashboard(id, to)
@@ -95,10 +91,10 @@ func (dd *Datadog) marshalAndWrite(component *Component, to io.Writer) error {
 	return enc.Encode(component)
 }
 
-func (dd *Datadog) writeDashboard(id int, to io.Writer) error {
+func (dd *Datadog) writeDashboard(id string, to io.Writer) error {
 	dashboard, err := dd.getDashboardFn(id)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get dashboard %d", id)
+		return errors.Wrapf(err, "unable to get dashboard %s", id)
 	}
 
 	return dd.marshalAndWrite(&Component{
@@ -107,10 +103,10 @@ func (dd *Datadog) writeDashboard(id int, to io.Writer) error {
 	}, to)
 }
 
-func (dd *Datadog) writeMonitor(id int, to io.Writer) error {
+func (dd *Datadog) writeMonitor(id string, to io.Writer) error {
 	monitor, err := dd.getMonitorFullFn(id, false)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get monitor %d", id)
+		return errors.Wrapf(err, "unable to get monitor %s", id)
 	}
 
 	return dd.marshalAndWrite(&Component{
@@ -119,10 +115,10 @@ func (dd *Datadog) writeMonitor(id int, to io.Writer) error {
 	}, to)
 }
 
-func (dd *Datadog) writeDowntime(id int, to io.Writer) error {
+func (dd *Datadog) writeDowntime(id string, to io.Writer) error {
 	downtime, err := dd.getDowntimeFn(id)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get downtime %d", id)
+		return errors.Wrapf(err, "unable to get downtime %s", id)
 	}
 
 	return dd.marshalAndWrite(&Component{
@@ -131,10 +127,10 @@ func (dd *Datadog) writeDowntime(id int, to io.Writer) error {
 	}, to)
 }
 
-func (dd *Datadog) writeScreenBoard(id int, to io.Writer) error {
+func (dd *Datadog) writeScreenBoard(id string, to io.Writer) error {
 	sb, err := dd.getScreenBoardFn(id)
 	if err != nil {
-		return errors.Wrapf(err, "unable to get a screenboard %d", id)
+		return errors.Wrapf(err, "unable to get a screenboard %s", id)
 	}
 
 	return dd.marshalAndWrite(&Component{
@@ -170,14 +166,6 @@ func (dd *Datadog) updateDashboard(dashboard json.RawMessage) error {
 func (dd *Datadog) updateMonitor(monitor *client.MonitorWithDependencies) error {
 	if err := dd.updateMonitorFn(monitor); err != nil {
 		return errors.Wrap(err, "unable to update a monitor")
-	}
-
-	return nil
-}
-
-func (dd *Datadog) updateAlert(alert json.RawMessage) error {
-	if err := dd.updateAlertFn(alert); err != nil {
-		return errors.Wrap(err, "unable to update an alert")
 	}
 
 	return nil

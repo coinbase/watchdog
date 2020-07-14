@@ -29,7 +29,7 @@ type Component string
 
 const (
 	monitorType     = Component("monitor")
-	dashboardType   = Component("dash")
+	dashboardType   = Component("dashboard")
 	screenboardType = Component("screen")
 	alertType       = Component("alert")
 	downtimeType    = Component("downtime")

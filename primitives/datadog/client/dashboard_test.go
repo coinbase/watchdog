@@ -11,14 +11,14 @@ import (
 
 var exampleDashboardsRespose = `
 {
-  "dashes": [
+  "dashboards": [
     {
       "read_only": false,
       "resource": "/api/v1/dash/22",
       "description": "created by foo/bar",
       "title": "test desc",
       "created": "2018-10-22T14:49:07.869620+00:00",
-      "id": "22",
+      "id": "my-id-1",
       "created_by": {
         "disabled": false,
         "handle": "foo.bar@test.com",
@@ -38,7 +38,7 @@ var exampleDashboardsRespose = `
       "description": "created by foo@coinbase.com",
       "title": "est dashboard",
       "created": "2018-10-20T01:22:03.556752+00:00",
-      "id": "33",
+      "id": "my-id-2",
       "created_by": {
         "disabled": false,
         "handle": "foo.bar@test.com",
@@ -58,8 +58,8 @@ var exampleDashboardsRespose = `
 
 func TestClient_UpdateDashboard(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/dash/256" {
-			t.Fatalf("expect /dash/256 Got %s", r.URL.Path)
+		if r.URL.Path != "/dashboard/my-test-id" {
+			t.Fatalf("expect /dashboard/my-test-id Got %s", r.URL.Path)
 		}
 
 		if r.Method != "PUT" {
@@ -76,8 +76,8 @@ func TestClient_UpdateDashboard(t *testing.T) {
 
 	exampleDashboard := []byte(`
 {
-  "dash": {
-    "id": 256
+  "dashboard": {
+    "id": "my-test-id"
   }
 }
 `)
@@ -90,8 +90,8 @@ func TestClient_UpdateDashboard(t *testing.T) {
 
 func TestClient_GetDashboard(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/dash/42" {
-			t.Fatalf("expect url /dash/42 Got %s", r.URL.Path)
+		if r.URL.Path != "/dashboard/other-test-id" {
+			t.Fatalf("expect url /dashboard/other-test-id Got %s", r.URL.Path)
 		}
 
 		if r.Method != "GET" {
@@ -106,7 +106,7 @@ func TestClient_GetDashboard(t *testing.T) {
 	}
 	c.baseEndpoint = ts.URL
 
-	_, err = c.GetDashboard(42)
+	_, err = c.GetDashboard("other-test-id")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,8 +127,8 @@ func TestDashboardsResponse_GetModifiedIDsWithin(t *testing.T) {
 		t.Fatalf("expect 2 ids. Got %d", len(ids))
 	}
 
-	if ids[0] != 22 || ids[1] != 33 {
-		t.Fatalf("expect ids 22 and 33. Got %v", ids)
+	if ids[0] != "my-id-1" || ids[1] != "my-id-2" {
+		t.Fatalf("expect ids my-id-1 and my-id-2. Got %v", ids)
 	}
 }
 
@@ -161,7 +161,7 @@ func TestClient_GetDashboards(t *testing.T) {
 		t.Fatalf("expect 2 ids. Got %d", len(ids))
 	}
 
-	if ids[0] != 22 || ids[1] != 33 {
-		t.Fatalf("expect ids 22 and 33. Got %v", ids)
+	if ids[0] != "my-id-1" || ids[1] != "my-id-2" {
+		t.Fatalf("expect ids my-id-1 and my-id-2. Got %v", ids)
 	}
 }

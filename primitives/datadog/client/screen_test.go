@@ -70,7 +70,7 @@ func TestScreenBoardsResponse_GetModifiedIDsWithin(t *testing.T) {
 		t.Fatalf("expect 2 ids got %d", len(ids))
 	}
 
-	if ids[0] != 123 || ids[1] != 456 {
+	if ids[0] != "123" || ids[1] != "456" {
 		t.Fatalf("expect values 123 and 456. Got %v", ids)
 	}
 }
@@ -116,7 +116,7 @@ func TestClient_GetScreenboard(t *testing.T) {
 	}
 	c.baseEndpoint = ts.URL
 
-	_, err = c.GetScreenboard(25)
+	_, err = c.GetScreenboard("25")
 	if err != nil {
 		t.Fatal(err)
 	}

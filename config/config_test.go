@@ -137,17 +137,17 @@ func TestComponentPath(t *testing.T) {
 	}
 
 	expectedPath := "data/foo/bar/test/dashboard-42.json"
-	if path := cfg.ComponentPath(types.ComponentDashboard, "foo/bar", "test", 42); path != expectedPath {
+	if path := cfg.ComponentPath(types.ComponentDashboard, "foo/bar", "test", "42"); path != expectedPath {
 		t.Fatalf("expect path %s. Got %s", expectedPath, path)
 	}
 
 	expectedPath = "data/infra/sre/screenboard-52.json"
-	if path := cfg.ComponentPath(types.ComponentScreenboard, "infra/sre", "", 52); path != expectedPath {
+	if path := cfg.ComponentPath(types.ComponentScreenboard, "infra/sre", "", "52"); path != expectedPath {
 		t.Fatalf("expect path %s. Got %s", expectedPath, path)
 	}
 
 	expectedPath = "data/hello/world/monitor-55.json"
-	if path := cfg.ComponentPath(types.ComponentMonitor, "hello/world", "", 55); path != expectedPath {
+	if path := cfg.ComponentPath(types.ComponentMonitor, "hello/world", "", "55"); path != expectedPath {
 		t.Fatalf("expect path %s. Got %s", expectedPath, path)
 	}
 }
@@ -159,7 +159,7 @@ func (f fakeUserConfig) Reload() error {
 	return nil
 }
 
-func (f fakeUserConfig) UserConfigFilesByComponentID(c types.Component, id int) []*UserConfigFile {
+func (f fakeUserConfig) UserConfigFilesByComponentID(c types.Component, id string) []*UserConfigFile {
 	return nil
 }
 

@@ -8,8 +8,8 @@ import (
 func TestController_preparePullRequestDescription(t *testing.T) {
 	c := &Controller{}
 
-	components := map[types.Component][]int{
-		types.ComponentDashboard: {1, 2, 3},
+	components := map[types.Component][]string{
+		types.ComponentDashboard: {"1", "2", "3"},
 	}
 
 	title, body := c.preparePullRequestDescription("test-team", "patch-string", "test/file1.yml", "bodyExtra", components)
@@ -27,8 +27,8 @@ func TestController_preparePullRequestDescription(t *testing.T) {
 		t.Fatalf("expect body %s .Got %s", expectedBody, body)
 	}
 
-	components = map[types.Component][]int{
-		types.ComponentDashboard: {1},
+	components = map[types.Component][]string{
+		types.ComponentDashboard: {"1"},
 	}
 	title, body = c.preparePullRequestDescription("test-team", "patch-string", "test/file1.yml", "", components)
 	expectedTitle = "[Automated PR] Update datadog component files owned by [test-team] - test/file1.yml dashboard 1"

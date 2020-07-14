@@ -22,7 +22,7 @@ type UserConfig interface {
 
 	// UserConfigFilesByComponentID takes a component, id and returns a list of user config files
 	// which contain this data.
-	UserConfigFilesByComponentID(component types.Component, id int) []*UserConfigFile
+	UserConfigFilesByComponentID(component types.Component, id string) []*UserConfigFile
 
 	// UserConfigFiles returns a slice of user config files.
 	UserConfigFiles() []*UserConfigFile
@@ -58,10 +58,10 @@ func NewUserConfigFromGit(ctx context.Context) (UserConfig, error) {
 		readFileFn:   git.ReadFile,
 		pullMasterFn: git.PullMaster,
 
-		dashboards:   make(map[int][]*UserConfigFile),
-		monitors:     make(map[int][]*UserConfigFile),
-		screenboards: make(map[int][]*UserConfigFile),
-		downtimes:    make(map[int][]*UserConfigFile),
+		dashboards:   make(map[string][]*UserConfigFile),
+		monitors:     make(map[string][]*UserConfigFile),
+		screenboards: make(map[string][]*UserConfigFile),
+		downtimes:    make(map[string][]*UserConfigFile),
 	}
 
 	return userCfg, userCfg.Reload()
@@ -71,15 +71,15 @@ func NewUserConfigFromGit(ctx context.Context) (UserConfig, error) {
 type UserConfigFile struct {
 	Meta MetaData
 
-	Dashboards   []int
-	Monitors     []int
-	Downtimes    []int
-	ScreenBoards []int
+	Dashboards   []string
+	Monitors     []string
+	Downtimes    []string
+	ScreenBoards []string
 }
 
 // Components return a mapping of a component to its IDs from a user config file.
-func (u UserConfigFile) Components() map[types.Component][]int {
-	return map[types.Component][]int{
+func (u UserConfigFile) Components() map[types.Component][]string {
+	return map[types.Component][]string{
 		types.ComponentDashboard:   u.Dashboards,
 		types.ComponentMonitor:     u.Monitors,
 		types.ComponentScreenboard: u.ScreenBoards,
@@ -128,10 +128,10 @@ type userGitConfig struct {
 	url      string
 	basePath string
 
-	dashboards   map[int][]*UserConfigFile
-	screenboards map[int][]*UserConfigFile
-	monitors     map[int][]*UserConfigFile
-	downtimes    map[int][]*UserConfigFile
+	dashboards   map[string][]*UserConfigFile
+	screenboards map[string][]*UserConfigFile
+	monitors     map[string][]*UserConfigFile
+	downtimes    map[string][]*UserConfigFile
 
 	userConfigFiles []*UserConfigFile
 
@@ -171,8 +171,8 @@ func (u *userGitConfig) UserConfigFiles() []*UserConfigFile {
 	return u.userConfigFiles
 }
 
-func (u *userGitConfig) mapToSlice(m map[int][]*MetaData) []int {
-	out := []int{}
+func (u *userGitConfig) mapToSlice(m map[string][]*MetaData) []string {
+	out := []string{}
 	for k := range m {
 		out = append(out, k)
 	}
@@ -181,7 +181,7 @@ func (u *userGitConfig) mapToSlice(m map[int][]*MetaData) []int {
 }
 
 // Metadata returns a list of metadata values for a given component and id.
-func (u *userGitConfig) UserConfigFilesByComponentID(component types.Component, id int) []*UserConfigFile {
+func (u *userGitConfig) UserConfigFilesByComponentID(component types.Component, id string) []*UserConfigFile {
 	switch component {
 	case types.ComponentDashboard:
 		return u.dashboards[id]
@@ -203,10 +203,10 @@ func (u *userGitConfig) Reload() error {
 
 	logrus.Infof("Loading a config from git repo %s", u.url)
 
-	u.dashboards = make(map[int][]*UserConfigFile)
-	u.monitors = make(map[int][]*UserConfigFile)
-	u.screenboards = make(map[int][]*UserConfigFile)
-	u.downtimes = make(map[int][]*UserConfigFile)
+	u.dashboards = make(map[string][]*UserConfigFile)
+	u.monitors = make(map[string][]*UserConfigFile)
+	u.screenboards = make(map[string][]*UserConfigFile)
+	u.downtimes = make(map[string][]*UserConfigFile)
 
 	u.userConfigFiles = []*UserConfigFile{}
 
@@ -256,7 +256,7 @@ func (u *userGitConfig) updateConfig(cfgFile *UserConfigFile) {
 	u.userConfigFiles = append(u.userConfigFiles, cfgFile)
 }
 
-func (u *userGitConfig) updateComponent(ids []int, userCfg *UserConfigFile, component map[int][]*UserConfigFile) {
+func (u *userGitConfig) updateComponent(ids []string, userCfg *UserConfigFile, component map[string][]*UserConfigFile) {
 	for _, id := range ids {
 		component[id] = append(component[id], userCfg)
 	}

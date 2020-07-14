@@ -12,7 +12,7 @@ type Response struct {
 	UserConfigFile *config.UserConfigFile
 
 	Component types.Component
-	ID        int
+	ID        string
 }
 
 // Pollster is the interface for datadog metrics polling.

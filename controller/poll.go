@@ -59,7 +59,7 @@ func (c *Controller) startWatcher(ctx context.Context, result chan *pollster.Res
 
 		case response := <-result:
 			err := c.CreatePullRequest(response.UserConfigFile.Meta.Team,
-				response.UserConfigFile.Meta.Project, response.UserConfigFile.Meta.FilePath, map[types.Component][]int{response.Component: {response.ID}})
+				response.UserConfigFile.Meta.Project, response.UserConfigFile.Meta.FilePath, map[types.Component][]string{response.Component: {response.ID}})
 			if err != nil {
 				logrus.Errorf("Error creating a new pull request for detected change: %s", err)
 			}

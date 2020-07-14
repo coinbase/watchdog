@@ -104,7 +104,7 @@ func TestMonitorsResponse_GetModifiedIDsWithin(t *testing.T) {
 		t.Fatalf("expect 2 ids. Got %v", len(ids))
 	}
 
-	if ids[0] != 55 || ids[1] != 66 {
+	if ids[0] != "55" || ids[1] != "66" {
 		t.Fatalf("expect ids 55 and 66 got %v", ids)
 	}
 }
@@ -151,7 +151,7 @@ func TestClient_GetMonitor(t *testing.T) {
 	}
 	c.baseEndpoint = ts.URL
 
-	_, err = c.GetMonitor(25)
+	_, err = c.GetMonitor("25")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +184,6 @@ func TestClient_UpdateMonitor(t *testing.T) {
 
 func TestClient_MonitorWithDependencies(t *testing.T) {
 	monitor := `{"id":1}`
-	alert := `{"id":1}`
 	downtimes := []*Downtime{
 		&Downtime{
 			ID:        2,
@@ -197,8 +196,6 @@ func TestClient_MonitorWithDependencies(t *testing.T) {
 			switch r.URL.Path {
 			case "/monitor/1":
 				fmt.Fprint(w, monitor)
-			case "/alert/1":
-				fmt.Fprint(w, alert)
 			case "/downtime":
 				err := json.NewEncoder(w).Encode(downtimes)
 				if err != nil {
@@ -211,7 +208,6 @@ func TestClient_MonitorWithDependencies(t *testing.T) {
 			}
 		} else if r.Method == "PUT" {
 			switch r.URL.Path {
-			case "/alert/1":
 			case "/downtime/3":
 			case "/monitor/1":
 			default:
@@ -229,17 +225,13 @@ func TestClient_MonitorWithDependencies(t *testing.T) {
 	}
 	c.baseEndpoint = ts.URL
 
-	m, err := c.GetMonitorWithDependencies(1, true)
+	m, err := c.GetMonitorWithDependencies("1", true)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if monitor != string(m.Monitor) {
 		t.Fatalf("expect %s. Got %s", monitor, string(m.Monitor))
-	}
-
-	if alert != string(m.Alert) {
-		t.Fatalf("expect %s. Got %s", alert, string(m.Alert))
 	}
 
 	if `{"id":3}` != string(m.Downtime) {

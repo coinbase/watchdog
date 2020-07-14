@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -24,7 +25,11 @@ type Downtime struct {
 type Downtimes []*Downtime
 
 // GetByMonitorID returns a downtime by a monitor ID.
-func (d Downtimes) GetByMonitorID(id int) *Downtime {
+func (d Downtimes) GetByMonitorID(strID string) *Downtime {
+	id, err := strconv.Atoi(strID)
+	if err != nil {
+		return nil
+	}
 	for _, downtime := range d {
 		if downtime.MonitorID == id {
 			return downtime
@@ -51,8 +56,8 @@ func (c Client) GetDowntimes() (Downtimes, error) {
 }
 
 // GetDowntime returns a downtime
-func (c Client) GetDowntime(id int) (json.RawMessage, error) {
-	resp, err := c.do("GET", fmt.Sprintf("%s/%d", downtimeType, id), nil)
+func (c Client) GetDowntime(id string) (json.RawMessage, error) {
+	resp, err := c.do("GET", fmt.Sprintf("%s/%s", downtimeType, id), nil)
 	if err != nil {
 		return nil, err
 	}

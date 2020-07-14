@@ -13,7 +13,7 @@ import (
 )
 
 // NewSimplePollster returns an instance of a simple polling scheduler.
-func NewSimplePollster(client *client.Client, interval time.Duration, cfg *config.Config, componentFn func(component types.Component, team, project string, id int) bool) Pollster {
+func NewSimplePollster(client *client.Client, interval time.Duration, cfg *config.Config, componentFn func(component types.Component, team, project string, id string) bool) Pollster {
 	return &simplePoller{
 		interval:         interval,
 		cfg:              cfg,
@@ -27,7 +27,7 @@ type simplePoller struct {
 	interval time.Duration
 	cfg      *config.Config
 
-	componentAllowed func(component types.Component, team, project string, id int) bool
+	componentAllowed func(component types.Component, team, project string, id string) bool
 }
 
 func newComponentAccessors(c *client.Client) *componentAccessors {
@@ -69,7 +69,7 @@ func (s *simplePoller) start(ctx context.Context, result chan *Response) {
 }
 
 func (s *simplePoller) poll(result chan *Response) {
-	for component, pollFn := range map[types.Component]func() ([]int, error){
+	for component, pollFn := range map[types.Component]func() ([]string, error){
 		types.ComponentDashboard:   s.pollDashboards,
 		types.ComponentMonitor:     s.pollMonitors,
 		types.ComponentScreenboard: s.pollScreenBoards,
@@ -84,7 +84,7 @@ func (s *simplePoller) poll(result chan *Response) {
 	}
 }
 
-func (s *simplePoller) pollDashboards() ([]int, error) {
+func (s *simplePoller) pollDashboards() ([]string, error) {
 	dashboards, err := s.ca.getDashboards()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get dashboards")
@@ -93,7 +93,7 @@ func (s *simplePoller) pollDashboards() ([]int, error) {
 	return dashboards.GetModifiedIDsWithin(s.interval, nil)
 }
 
-func (s *simplePoller) pollMonitors() ([]int, error) {
+func (s *simplePoller) pollMonitors() ([]string, error) {
 	monitors, err := s.ca.getMonitors()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get monitors")
@@ -102,7 +102,7 @@ func (s *simplePoller) pollMonitors() ([]int, error) {
 	return monitors.GetModifiedIDsWithin(s.interval, nil)
 }
 
-func (s *simplePoller) pollScreenBoards() ([]int, error) {
+func (s *simplePoller) pollScreenBoards() ([]string, error) {
 	screenBoards, err := s.ca.getScreenBoards()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get screenboards")
@@ -111,13 +111,13 @@ func (s *simplePoller) pollScreenBoards() ([]int, error) {
 	return screenBoards.GetModifiedIDsWithin(s.interval, nil)
 }
 
-func (s *simplePoller) sendFilteredResponse(component types.Component, ids []int, result chan *Response) {
+func (s *simplePoller) sendFilteredResponse(component types.Component, ids []string, result chan *Response) {
 	for _, id := range ids {
 		userConfigFiles := s.cfg.UserConfigFilesByComponentID(component, id)
 
 		// send one event per user file
 		for _, userConfigFile := range userConfigFiles {
-			logrus.Debugf("Detected a change %s id %d", component, id)
+			logrus.Debugf("Detected a change %s id %s", component, id)
 			if s.componentAllowed != nil && !s.componentAllowed(component, userConfigFile.Meta.Team, userConfigFile.Meta.Project, id) {
 				logrus.Debugf("Change is not allowed. Skipping")
 				continue

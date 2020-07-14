@@ -14,7 +14,7 @@ import (
 type fakeUserConfig struct {
 }
 
-func (c fakeUserConfig) UserConfigFilesByComponentID(component types.Component, id int) []*config.UserConfigFile {
+func (c fakeUserConfig) UserConfigFilesByComponentID(component types.Component, id string) []*config.UserConfigFile {
 	return []*config.UserConfigFile{
 		&config.UserConfigFile{
 			Meta: config.MetaData{
@@ -48,7 +48,7 @@ func (c fakeUserConfig) UserConfigFromFile(path string, a bool) (*config.UserCon
 func TestNewSimplePollster(t *testing.T) {
 	modified := time.Now().Add(time.Second).Format(time.RFC3339Nano)
 
-	dashboard := fmt.Sprintf(`{"dashes":[{"id":"1","modified":"%s"}]}`, modified)
+	dashboard := fmt.Sprintf(`{"dashboards":[{"id":"1","modified":"%s"}]}`, modified)
 	monitors := fmt.Sprintf(`[{"id":2,"modified":"%s"}]`, modified)
 	screenboards := fmt.Sprintf(`{"screenboards":[{"id":3,"modified":"%s"}]}`, modified)
 

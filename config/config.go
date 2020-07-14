@@ -41,12 +41,12 @@ type Config struct {
 }
 
 // ComponentPath returns a path to a component json representation.
-func (c *Config) ComponentPath(component types.Component, team, project string, id int) string {
+func (c *Config) ComponentPath(component types.Component, team, project string, id string) string {
 	destDir := strings.Join([]string{c.SystemConfig.GetDatadogDataPath(), team}, "/")
-	filename := fmt.Sprintf("%s/%s-%d.json", destDir, component, id)
+	filename := fmt.Sprintf("%s/%s-%s.json", destDir, component, id)
 
 	if project != "" {
-		filename = fmt.Sprintf("%s/%s/%s-%d.json", destDir, project, component, id)
+		filename = fmt.Sprintf("%s/%s/%s-%s.json", destDir, project, component, id)
 	}
 
 	return filename

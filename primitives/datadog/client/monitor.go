@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -12,7 +13,7 @@ import (
 type MonitorsResponse json.RawMessage
 
 // GetModifiedIDsWithin returns a list of monitor IDs if the modified field was changes within the given interval.
-func (mr MonitorsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(time.Time) time.Duration) ([]int, error) {
+func (mr MonitorsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(time.Time) time.Duration) ([]string, error) {
 	if fn == nil {
 		fn = time.Since
 	}
@@ -27,7 +28,7 @@ func (mr MonitorsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(
 		return nil, errors.Wrap(err, "unable to unmarshal monitors response")
 	}
 
-	var ids []int
+	var ids []string
 	for _, d := range resp {
 		if d.Modified == "" {
 			return nil, fmt.Errorf("empty modified field, full response: %+v", resp)
@@ -39,7 +40,7 @@ func (mr MonitorsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(
 		}
 
 		if fn(t) < interval {
-			ids = append(ids, d.ID)
+			ids = append(ids, strconv.Itoa(d.ID))
 		}
 	}
 
@@ -49,7 +50,6 @@ func (mr MonitorsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(
 // MonitorWithDependencies represents a monitor with dependencies like Alert and Downtime.
 type MonitorWithDependencies struct {
 	Monitor  json.RawMessage `json:"monitor"`
-	Alert    json.RawMessage `json:"alert"`
 	Downtime json.RawMessage `json:"downtime"`
 }
 
@@ -66,16 +66,16 @@ func (c Client) UpdateMonitorWithDependencies(m *MonitorWithDependencies) error 
 }
 
 // GetMonitorWithDependencies returns a monitor with dependencies.
-func (c Client) GetMonitorWithDependencies(id int, includeDowntime bool) (*MonitorWithDependencies, error) {
+func (c Client) GetMonitorWithDependencies(id string, includeDowntime bool) (*MonitorWithDependencies, error) {
 	monitor, err := c.GetMonitor(id)
 	if err != nil {
 		return nil, err
 	}
 
-	alert, err := c.GetAlert(id)
-	if err != nil {
-		return nil, err
-	}
+	// alert, err := c.GetAlert(id)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	var downtime json.RawMessage
 
@@ -91,13 +91,12 @@ func (c Client) GetMonitorWithDependencies(id int, includeDowntime bool) (*Monit
 		d := downtimes.GetByMonitorID(id)
 		if d != nil {
 			// if the monitor was found, get the raw message for the full downtime
-			downtime, err = c.GetDowntime(d.ID)
+			downtime, err = c.GetDowntime(strconv.Itoa(d.ID))
 		}
 	}
 
 	return &MonitorWithDependencies{
 		Monitor:  monitor,
-		Alert:    alert,
 		Downtime: downtime,
 	}, nil
 }
@@ -122,8 +121,8 @@ func (c Client) UpdateMonitor(monitor json.RawMessage) error {
 }
 
 // GetMonitor returns a monitor by ID
-func (c Client) GetMonitor(id int) (json.RawMessage, error) {
-	resp, err := c.do("GET", fmt.Sprintf("%s/%d", monitorType, id), nil)
+func (c Client) GetMonitor(id string) (json.RawMessage, error) {
+	resp, err := c.do("GET", fmt.Sprintf("%s/%s", monitorType, id), nil)
 	if err != nil {
 		return nil, err
 	}

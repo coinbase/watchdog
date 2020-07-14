@@ -15,7 +15,7 @@ import (
 type fakeUserConfig struct {
 }
 
-func (c fakeUserConfig) UserConfigFilesByComponentID(component types.Component, id int) []*config.UserConfigFile {
+func (c fakeUserConfig) UserConfigFilesByComponentID(component types.Component, id string) []*config.UserConfigFile {
 	return nil
 }
 

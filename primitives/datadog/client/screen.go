@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -12,7 +13,7 @@ import (
 type ScreenBoardsResponse json.RawMessage
 
 // GetModifiedIDsWithin returns a list of screen board IDs if the modified field was changes within the given interval.
-func (sr ScreenBoardsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(time.Time) time.Duration) ([]int, error) {
+func (sr ScreenBoardsResponse) GetModifiedIDsWithin(interval time.Duration, fn func(time.Time) time.Duration) ([]string, error) {
 	if fn == nil {
 		fn = time.Since
 	}
@@ -29,7 +30,7 @@ func (sr ScreenBoardsResponse) GetModifiedIDsWithin(interval time.Duration, fn f
 		return nil, errors.Wrap(err, "unable to unmarshal monitors response")
 	}
 
-	var ids []int
+	var ids []string
 	for _, d := range resp.Screenboards {
 		if d.Modified == "" {
 			return nil, fmt.Errorf("empty modified field, full response: %+v", resp)
@@ -41,7 +42,7 @@ func (sr ScreenBoardsResponse) GetModifiedIDsWithin(interval time.Duration, fn f
 		}
 
 		if fn(t) < interval {
-			ids = append(ids, d.ID)
+			ids = append(ids, strconv.Itoa(d.ID))
 		}
 	}
 
@@ -68,8 +69,8 @@ func (c Client) UpdateScreenboard(screen json.RawMessage) error {
 }
 
 // GetScreenboard returns a raw json representation of a screen board.
-func (c Client) GetScreenboard(id int) (json.RawMessage, error) {
-	resp, err := c.do("GET", fmt.Sprintf("%s/%d", screenboardType, id), nil)
+func (c Client) GetScreenboard(id string) (json.RawMessage, error) {
+	resp, err := c.do("GET", fmt.Sprintf("%s/%s", screenboardType, id), nil)
 	if err != nil {
 		return nil, err
 	}

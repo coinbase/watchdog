@@ -10,14 +10,14 @@ import (
 
 func TestDatadogWrite(t *testing.T) {
 	dd := &Datadog{
-		getDashboardFn: func(id int) (json.RawMessage, error) {
-			return []byte(`{"id":2,"title":"test title", "description":"test description"}`), nil
+		getDashboardFn: func(id string) (json.RawMessage, error) {
+			return []byte(`{"id":"2","title":"test title", "description":"test description"}`), nil
 		},
 	}
 
 	buf := new(bytes.Buffer)
 
-	err := dd.Write(types.ComponentDashboard, 2, buf)
+	err := dd.Write(types.ComponentDashboard, "2", buf)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func TestDatadogWrite(t *testing.T) {
 	expectedResponse := struct {
 		Type      string
 		Dashboard struct {
-			ID          int
+			ID          string
 			Description string
 			Title       string
 		}
@@ -40,8 +40,8 @@ func TestDatadogWrite(t *testing.T) {
 		t.Fatalf("expected type dashboard. Got %s", expectedResponse.Type)
 	}
 
-	if expectedResponse.Dashboard.ID != 2 {
-		t.Fatalf("expected dashboard id 2. Got %d", expectedResponse.Dashboard.ID)
+	if expectedResponse.Dashboard.ID != "2" {
+		t.Fatalf("expected dashboard id 2. Got %s", expectedResponse.Dashboard.ID)
 	}
 
 	if expectedResponse.Dashboard.Title != "test title" {

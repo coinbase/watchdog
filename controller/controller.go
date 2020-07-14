@@ -56,7 +56,7 @@ type Controller struct {
 }
 
 // ComponentExists checks if a component file on the master branch.
-func (c *Controller) ComponentExists(component types.Component, team, project string, id int) bool {
+func (c *Controller) ComponentExists(component types.Component, team, project string, id string) bool {
 	c.Lock()
 	defer c.Unlock()
 
@@ -74,7 +74,7 @@ func (c *Controller) ComponentExists(component types.Component, team, project st
 // CreatePullRequest takes a map of datadog components and their ids
 // checks for the difference between current state and state from master branch
 // and creates a pull requests if needed. This is the main controller's function.
-func (c *Controller) CreatePullRequest(team, project, configFile string, componentsMap map[types.Component][]int) error {
+func (c *Controller) CreatePullRequest(team, project, configFile string, componentsMap map[types.Component][]string) error {
 	if len(componentsMap) == 0 {
 		return nil
 	}
@@ -223,7 +223,7 @@ func (c *Controller) tryCloseOutdatedPRs(newPRNumber int, prs []*github.PullRequ
 	}
 }
 
-func (c *Controller) preparePullRequestDescription(team, patch, configFile, bodyExtra string, componentsMap map[types.Component][]int) (title, body string) {
+func (c *Controller) preparePullRequestDescription(team, patch, configFile, bodyExtra string, componentsMap map[types.Component][]string) (title, body string) {
 	title = fmt.Sprintf("[Automated PR] Update datadog component files owned by [%s] - %s", team, configFile)
 
 	body = "Modified component files have been detected and a new PR has been created\n\n"
@@ -235,7 +235,7 @@ func (c *Controller) preparePullRequestDescription(team, patch, configFile, body
 	if len(componentsMap) == 1 {
 		for name, ids := range componentsMap {
 			if len(ids) == 1 {
-				title += fmt.Sprintf(" %s %d", name, ids[0])
+				title += fmt.Sprintf(" %s %s", name, ids[0])
 				body += ":warning: **Closing this PR will revert all changes made in datadog!!!**"
 			}
 		}
@@ -249,7 +249,7 @@ func (c *Controller) preparePullRequestDescription(team, patch, configFile, body
 	return
 }
 
-func (c *Controller) addFiles(team, project string, component types.Component, ids []int) error {
+func (c *Controller) addFiles(team, project string, component types.Component, ids []string) error {
 	for _, id := range ids {
 		// build a filepath to component json
 		filename := c.cfg.ComponentPath(component, team, project, id)
@@ -258,7 +258,7 @@ func (c *Controller) addFiles(team, project string, component types.Component, i
 		buf := new(bytes.Buffer)
 		err := c.datadog.Write(component, id, buf)
 		if err != nil {
-			logrus.Errorf("unable to write a component %s with id %d to a buffer: %s", component, id, err)
+			logrus.Errorf("unable to write a component %s with id %s to a buffer: %s", component, id, err)
 			continue
 		}
 

@@ -21,7 +21,7 @@ var (
 type Option func(datadog *Datadog) error
 
 // WithAccessorGetFn is a functional parameter to set the get functions.
-func WithAccessorGetFn(component types.Component, fn func(int) (json.RawMessage, error)) Option {
+func WithAccessorGetFn(component types.Component, fn func(string) (json.RawMessage, error)) Option {
 	return func(dd *Datadog) error {
 		if fn == nil {
 			return ErrNilFunction
@@ -43,7 +43,7 @@ func WithAccessorGetFn(component types.Component, fn func(int) (json.RawMessage,
 }
 
 // WithMonitorGetFn is a functional parameter to set the dashboard get function.
-func WithMonitorGetFn(fn func(int, bool) (*client.MonitorWithDependencies, error)) Option {
+func WithMonitorGetFn(fn func(string, bool) (*client.MonitorWithDependencies, error)) Option {
 	return func(dd *Datadog) error {
 		if fn == nil {
 			return ErrNilFunction

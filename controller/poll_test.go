@@ -12,7 +12,7 @@ import (
 func TestPoll(t *testing.T) {
 	ddog, err := datadog.New("123", "345", nil, datadog.WithAccessorGetFn(
 		types.ComponentDashboard,
-		func(id int) (json.RawMessage, error) {
+		func(id string) (json.RawMessage, error) {
 			return nil, nil
 		},
 	))
